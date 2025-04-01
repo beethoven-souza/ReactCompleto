@@ -1,42 +1,42 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+import { useEffect, useState } from "react";
 import "./App.css";
 import Task from "./components/Task";
 import AddTask from "./components/AddTask";
 
 function App() {
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Estudar programação",
-      description:
-        "Estudar programação para se tornar um desenvolvedor full stack.",
-      isComplete: false,
-    },
-    {
-      id: 2,
-      title: "Estudar Engenharia de Software",
-      description:
-        "Estudar Engenharia de Software para se tornar um engenheiro de software.",
-      isComplete: false,
-    },
-    {
-      id: 3,
-      title: "Estudar Inglês",
-      description: "Estudar Inglês para dominar uma segunda lingua.",
-      isComplete: false,
-    },
-  ]);
+  const [tasks, setTasks] = useState(() => {
+    const storedTasks = localStorage.getItem("tasks");
+    return storedTasks ? JSON.parse(storedTasks) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
+
+  useEffect(()=>{
+    async function fetchtasks(){
+      // CHAMAR API 
+      const response = await fetch(
+        "https://jsonplaceholder.typicode.com/todos?_limit=10",
+        {
+          method : "GET",
+        }
+      );
+      const data = await response.json();
+      console.log(data)
+      
+      //CAPTURAR O DADOS DA API
+      //ARMAZENAR OS DADOS DA API
+
+    }
+    
+    fetchtasks();
+  }, []);
 
   function onTaskClick(taskId) {
-    const newTasks = tasks.map((task) => {
-      if (task.id == taskId) {
-        return { ...task, isCompleted: !task.isCompleted };
-      }
-
-      return task;
-    });
+    const newTasks = tasks.map((task) =>
+      task.id === taskId ? { ...task, isCompleted: !task.isCompleted } : task
+    );
     setTasks(newTasks);
   }
 
@@ -52,7 +52,7 @@ function App() {
       description,
       isComplete: false,
     };
-    setTasks([tasks, newTask]);
+    setTasks([...tasks, newTask]);
   }
 
   return (
